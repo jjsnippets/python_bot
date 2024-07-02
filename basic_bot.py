@@ -1,41 +1,41 @@
 # import necessary libraries
+from discord.ext import commands
 import discord
 import os
 from dotenv import load_dotenv
 
+# supplementary libraries
+from datetime import datetime
+
 # API token set-up
 load_dotenv()
 BOT_TOKEN = os.getenv('DISCORD_TOKEN')
-CHANNEL_ID = os.getenv('CHANNEL_ID')
+CHANNEL_DEBUG = int(os.getenv('CHANNEL_ID'))
 
-# GETS THE CLIENT OBJECT FROM DISCORD.PY. CLIENT IS SYNONYMOUS WITH BOT.
-intents = discord.Intents.default()
-intents.message_content = True
-client = discord.Client(intents=intents)
+# bot object creation
+# intents = discord.Intents.default()
+# intents.message_content = True
+client = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
 # EVENT LISTENER FOR WHEN THE BOT HAS SWITCHED FROM OFFLINE TO ONLINE.
 @client.event
 async def on_ready():
-    # CREATES A COUNTER TO KEEP TRACK OF HOW MANY GUILDS / SERVERS THE BOT IS CONNECTED TO.
+    # prints how many servers the bot is in
     guild_count = 0
-
-    # LOOPS THROUGH ALL THE GUILD / SERVERS THAT THE BOT IS ASSOCIATED WITH.
     for guild in client.guilds:
-        # PRINT THE SERVER'S ID AND NAME.
-        print(f"- {guild.id} (name: {guild.name})")
-
-        # INCREMENTS THE GUILD COUNTER.
+        print(f" = {guild.id} (name: {guild.name})")
         guild_count = guild_count + 1
+    print("basic_bot is in " + str(guild_count) + " guilds.\n\n")
 
-    # PRINTS HOW MANY GUILDS / SERVERS THE BOT IS IN.
-    print("basic_bot is in " + str(guild_count) + " guilds.")
+    # sends a message to the debug channel
+    channel = client.get_channel(CHANNEL_DEBUG)
+    await channel.send("I'm online: " + datetime.now().strftime("%b %d, %Y %I:%M:%S %p"))
 
 # EVENT LISTENER FOR WHEN A NEW MESSAGE IS SENT TO A CHANNEL.
 @client.event
 async def on_message(message):
-    # CHECKS IF THE MESSAGE THAT WAS SENT IS EQUAL TO "HELLO".
-    if message.content == "hello":
-        # SENDS BACK A MESSAGE TO THE CHANNEL.
+    # echoes '!hello' message from user
+    if message.content == "!hello":
         await message.channel.send("hello echo")
 
 client.run(BOT_TOKEN)
